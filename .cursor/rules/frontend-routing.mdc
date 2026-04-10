@@ -1,0 +1,35 @@
+---
+description: Frontend routing with react-router v2
+globs: client/src/configureRoutes.tsx, client/src/Root.tsx
+alwaysApply: false
+---
+
+# Frontend Routing
+
+## Library
+
+react-router v2 (`^2.7.0`). Uses `Router`, `Route`, `IndexRoute`, `browserHistory`. Do NOT use v4/v5/v6 APIs.
+
+## Route configuration
+
+All routes in `client/src/configureRoutes.tsx`, nested under `<Route component={App}>` so the App shell wraps every page:
+
+| Path | Component |
+|------|-----------|
+| `/` | `WelcomePage` |
+| `/owners/list` | `FindOwnersPage` |
+| `/owners/new` | `NewOwnerPage` |
+| `/owners/:ownerId/edit` | `EditOwnerPage` |
+| `/owners/:ownerId/pets/:petId/edit` | `EditPetPage` |
+| `/owners/:ownerId/pets/new` | `NewPetPage` |
+| `/owners/:ownerId/pets/:petId/visits/new` | `VisitsPage` |
+| `/owners/:ownerId` | `OwnersPage` |
+| `/vets` | `VetsPage` |
+| `/error` | `ErrorPage` |
+| `*` | `NotFoundPage` |
+
+## Navigation
+
+- Use `this.context.router.push({ pathname, query })` for programmatic navigation (requires `static contextTypes = { router: React.PropTypes.object.isRequired }`)
+- Use `<Link to="...">` from react-router for declarative navigation
+- `browserHistory` requires `historyApiFallback` in the dev server to return `index.html` for all paths

@@ -1,0 +1,33 @@
+---
+description: Backend testing conventions — JUnit 5, MockMvc, profile-based integration tests
+globs: src/test/**/*.java
+alwaysApply: false
+---
+
+# Backend Testing
+
+## Framework
+
+JUnit 5 via `spring-boot-starter-test`. Security tests use `spring-security-test` (`@WithMockUser`).
+
+## Controller tests
+
+MockMvc-based, one test class per controller (e.g., `OwnerRestControllerTests`):
+
+- Use `@SpringBootTest` + `@WebAppConfiguration` + `@ContextConfiguration(classes = ApplicationTestConfig.class)`
+- Build MockMvc in `@BeforeEach` with `MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ExceptionControllerAdvice())`
+- Mock the `ClinicService` with `@Mock`, inject real mappers with `@Autowired`
+- Use `@WithMockUser(roles = "OWNER_ADMIN")` (or `VET_ADMIN`, `ADMIN`) for secured endpoints
+- Test security is enabled in test properties: `petclinic.security.enable=true`
+
+## Service integration tests
+
+`AbstractClinicServiceTests` defines shared test methods. Three subclasses activate different profiles:
+
+- `ClinicServiceJdbcTests` → `@ActiveProfiles({"jdbc", "hsqldb"})`
+- `ClinicServiceJpaTests` → `@ActiveProfiles({"jpa", "hsqldb"})`
+- `ClinicServiceSpringDataJpaTests` → `@ActiveProfiles({"spring-data-jpa", "hsqldb"})`
+
+## Coverage
+
+`jacoco-maven-plugin` enforces coverage; excludes generated `rest/dto` and `rest/api` packages. Run `./mvnw test` to execute all backend tests.

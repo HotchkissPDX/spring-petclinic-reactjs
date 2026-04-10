@@ -1,0 +1,34 @@
+---
+description: Spring Boot configuration — profiles, security, CORS
+globs: src/main/resources/application*.properties, src/main/java/**/security/*.java
+alwaysApply: false
+---
+
+# Spring Boot Configuration
+
+## Application properties
+
+- `server.port=9966`, `server.servlet.context-path=/petclinic/`
+- Active profiles: `spring.profiles.active=hsqldb,spring-data-jpa` (two profiles: one for DB engine, one for repository implementation)
+- Full API base URL: `http://localhost:9966/petclinic/api/`
+
+## Security
+
+Toggled by `petclinic.security.enable` (default: `false`):
+
+- **Disabled** (`false`): `DisableSecurityConfig` → permit-all, CSRF disabled
+- **Enabled** (`true`): `BasicAuthenticationConfig` → HTTP Basic, JDBC auth against `users`/`roles` tables, `@PreAuthorize` enforced
+
+`WebSecurityConfig` is always active and configures CORS.
+
+## CORS
+
+Configured in `WebSecurityConfig.apiConfigurationSource()`:
+- Allowed origin: `http://localhost:4444`
+- Allowed methods: `OPTIONS`, `GET`, `POST`, `PUT`
+- **`DELETE` is NOT allowed** — this is a known gap. Add `DELETE` if implementing delete operations from the frontend.
+- Registered for pattern: `/**`
+
+## RBAC roles
+
+Defined in `Roles.java` (`@Component`): `OWNER_ADMIN`, `VET_ADMIN`, `ADMIN`. Referenced in controllers via SpEL: `@PreAuthorize("hasRole(@roles.VET_ADMIN)")`.

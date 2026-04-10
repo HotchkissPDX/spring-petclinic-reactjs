@@ -1,0 +1,40 @@
+---
+description: Frontend API integration patterns — fetch calls, response handling, URL construction
+globs: client/src/**/*.tsx, client/src/**/*.ts
+alwaysApply: false
+---
+
+# Frontend API Integration
+
+## API utility (`client/src/util/index.tsx`)
+
+- **`url(path)`** — Prepends `__API_SERVER_URL__` (defaults to `http://localhost:9966/petclinic`). Pass paths WITHOUT a leading slash: `url('api/owners')`, not `url('/api/owners')`.
+- **`submitForm(method, path, data, onSuccess)`** — JSON fetch wrapper. Handles 204 No Content by calling `onSuccess(204, {})`. For other statuses, parses JSON body and calls `onSuccess(status, result)`.
+
+## Response handling pattern
+
+ALWAYS check `response.ok` before calling `response.json()`. The backend returns 404 with empty bodies for "not found" cases:
+
+```typescript
+fetch(requestUrl)
+  .then(response => response.ok ? response.json() : [])
+  .then(data => this.setState({ data }));
+```
+
+For single-entity fetches, fall back to `null` instead of `[]`:
+
+```typescript
+fetch(fetchUrl)
+  .then(response => response.ok ? response.json() : null)
+  .then(owner => this.setState({ owner }));
+```
+
+## API path conventions
+
+- Use plural resource names: `api/owners`, `api/pettypes`, `api/vets`, `api/visits`
+- Owner-scoped resources: `api/owners/{id}/pets`, `api/owners/{id}/pets/{petId}/visits`
+- Standalone resources: `api/pets/{id}`, `api/visits/{id}`
+
+## Form submission
+
+Use `submitForm()` for create/update operations. Check the returned status code in the callback — the backend returns 201 for creates, 204 for updates (sometimes with a body despite 204 semantics).

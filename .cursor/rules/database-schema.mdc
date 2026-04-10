@@ -1,0 +1,32 @@
+---
+description: Database schema conventions and profile-based engine selection
+globs: src/main/resources/db/**/*.sql, src/main/resources/application*.properties
+alwaysApply: false
+---
+
+# Database Schema
+
+## Engine selection
+
+Database engine is controlled by Spring profile in `application.properties`:
+
+```
+spring.profiles.active=hsqldb,spring-data-jpa
+```
+
+Three engines: `hsqldb` (default, in-memory), `mysql`, `postgresql`. Each has its own properties file and DDL scripts under `src/main/resources/db/<engine>/`.
+
+## Schema conventions
+
+- All tables use `INTEGER IDENTITY PRIMARY KEY` for IDs (except `users` which uses `username VARCHAR(20)` as PK)
+- Foreign keys are explicit `ALTER TABLE ... ADD CONSTRAINT` statements
+- Indexes exist on frequently queried columns (`owners.last_name`, `pets.name`, etc.)
+- `initDB.sql` drops all tables in reverse FK order, then creates them
+- `populateDB.sql` inserts seed data — all three engines share the same logical seed data
+
+## When modifying schema
+
+- Update `initDB.sql` and `populateDB.sql` for ALL THREE engines (`hsqldb/`, `mysql/`, `postgresql/`)
+- Keep the logical schema identical across engines; only syntax should differ
+- There is no Flyway/Liquibase — schema changes are raw DDL
+- Set `ddl-auto=none` — Hibernate does not manage the schema

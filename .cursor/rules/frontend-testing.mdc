@@ -1,0 +1,32 @@
+---
+description: Frontend testing conventions — Jest 29, Enzyme 2, ts-jest
+globs: client/tests/**/*.tsx, client/tests/**/*.ts, client/jest.config.cjs
+alwaysApply: false
+---
+
+# Frontend Testing
+
+## Stack
+
+- **Runner:** Jest 29 with `ts-jest` preset
+- **Environment:** `jsdom` (configured in `client/jest.config.cjs`)
+- **Component testing:** Enzyme 2 with `shallow` renderer and `react-addons-test-utils` (React 15 compatible)
+- **Fetch mock:** `client/jest.setup.js` assigns a custom mock from `tests/__tests__/fetch-mock.js` to `global.fetch`
+
+## Config files
+
+- `client/jest.config.cjs` — Jest configuration (CommonJS module)
+- `client/jest.setup.js` — Runs before tests; sets up the fetch mock
+
+## Existing test files
+
+- `tests/__tests__/util.test.tsx` — Tests for `url()` and `submitForm()` utility functions
+- `tests/components/form/__tests__/Input.test.tsx` — Tests for `Input` component rendering and validation
+- `tests/components/form/__tests__/Constraints.test.tsx` — Tests for constraint validation helpers
+
+## Conventions
+
+- Place test files in `__tests__/` directories adjacent to the code they test
+- Use Enzyme `shallow()` for component rendering (not `mount()` — avoids full DOM)
+- Mock `fetch` via the global setup; do not import `jest` directly in test files
+- Run tests: `cd client && npm test`

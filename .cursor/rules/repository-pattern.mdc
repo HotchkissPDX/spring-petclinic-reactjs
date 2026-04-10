@@ -1,0 +1,31 @@
+---
+description: Repository interface and profile-switched implementation pattern
+globs: src/main/java/**/repository/**/*.java
+alwaysApply: false
+---
+
+# Repository Pattern
+
+## Structure
+
+Each domain entity has a repository interface in `org.springframework.samples.petclinic.repository` and three profile-activated implementations:
+
+| Profile | Package | Style |
+|---------|---------|-------|
+| `spring-data-jpa` (default) | `repository/springdatajpa/` | Spring Data `Repository<T, ID>` interface + custom `*Override` for delete |
+| `jpa` | `repository/jpa/` | `@PersistenceContext EntityManager` |
+| `jdbc` | `repository/jdbc/` | `NamedParameterJdbcTemplate` + row mappers |
+
+## Rules
+
+- Controllers and services depend ONLY on the repository interface, never on an implementation
+- Each implementation class MUST be annotated with its `@Profile` (e.g., `@Profile("spring-data-jpa")`)
+- Spring Data JPA repos that need custom delete logic use an `*Override` interface + `*Impl` class
+- JDBC implementations manage join tables manually (e.g., `vet_specialties`) in `save()` and `delete()`
+
+## Adding a new repository
+
+1. Define the interface in `repository/` with CRUD methods
+2. Create implementations in all three profile packages
+3. Inject it into `ClinicServiceImpl` (or `UserServiceImpl` for auth)
+4. Annotate each implementation with the correct `@Profile`

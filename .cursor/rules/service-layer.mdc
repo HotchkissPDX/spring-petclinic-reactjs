@@ -1,0 +1,27 @@
+---
+description: Service layer conventions — ClinicService facade and transaction management
+globs: src/main/java/**/service/**/*.java
+alwaysApply: false
+---
+
+# Service Layer
+
+## ClinicService facade
+
+`ClinicService` is the single facade for all domain operations (except User). `ClinicServiceImpl`:
+
+- Is annotated `@Service`
+- Constructor-injects all six repository interfaces: `PetRepository`, `VetRepository`, `OwnerRepository`, `VisitRepository`, `SpecialtyRepository`, `PetTypeRepository`
+- Applies `@Transactional` to every method (`readOnly = true` for queries)
+- Contains NO business logic — it delegates directly to repositories
+
+## UserService
+
+`UserService` / `UserServiceImpl` is separate, handling only `User` persistence. It validates that users have at least one role and auto-prefixes role names with `ROLE_`.
+
+## Rules
+
+- ALL controller→repository access MUST go through `ClinicService` or `UserService` — never inject a repository directly into a controller
+- Read methods: `@Transactional(readOnly = true)`
+- Write methods: `@Transactional`
+- Handle `ObjectRetrievalFailureException` and `EmptyResultDataAccessException` by returning `null` for not-found cases

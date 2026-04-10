@@ -1,0 +1,33 @@
+---
+description: JPA entity conventions and inheritance hierarchy
+globs: src/main/java/**/model/*.java
+alwaysApply: false
+---
+
+# JPA Entities
+
+## Inheritance hierarchy
+
+All entities extend one of three `@MappedSuperclass` base classes:
+
+- `BaseEntity` — `id` (Integer, `@GeneratedValue(IDENTITY)`), `isNew()` helper
+- `NamedEntity extends BaseEntity` — adds `name` (`@NotEmpty`)
+- `Person extends BaseEntity` — adds `firstName`, `lastName` (`@NotEmpty`)
+
+## Conventions
+
+- Use `jakarta.persistence` annotations (not `javax.persistence` — this is Spring Boot 3)
+- Use `jakarta.validation.constraints` for field validation (`@NotEmpty`, `@Digits`)
+- Collections use `Set<T>` internally, expose sorted `List<T>` via getter
+- Cascade and fetch strategy: `cascade = CascadeType.ALL, fetch = FetchType.EAGER` on parent→child relationships
+- `@ManyToOne` on the child side has no cascade
+
+## Example: adding a field
+
+```java
+@Column(name = "email")
+@NotEmpty
+private String email;
+```
+
+Then update `initDB.sql` for all three DB engines to add the column, and update the corresponding OpenAPI schema and DTO.

@@ -1,0 +1,34 @@
+---
+description: React 15 component patterns, TypeScript conventions, and project structure
+globs: client/src/**/*.tsx, client/src/**/*.ts
+alwaysApply: false
+---
+
+# Frontend Components
+
+## React version
+
+React 15.x with class components. Do NOT use hooks, functional component state, or React 16+ APIs (Fragments, Context, Portals, Suspense). Use `React.PropTypes` for context types (not the standalone `prop-types` package).
+
+## Component patterns
+
+- **Page components** (stateful): Class components that fetch data in `componentDidMount`, store results in `this.state`, pass data as props to children
+- **Presentational components** (stateless): Function components that receive props and render UI
+- **Editor components**: Class components with local form state, `onInputChange` / `onSubmit` handlers bound in the constructor
+
+## File organization
+
+Components are grouped by domain under `client/src/components/`:
+- `owners/` — owner search, detail, create/edit
+- `pets/` — pet create/edit
+- `visits/` — visit creation
+- `vets/` — vet list
+- `form/` — reusable form inputs (`Input`, `DateInput`, `SelectInput`, `Constraints`)
+
+## TypeScript types
+
+Shared model interfaces live in `client/src/types/index.ts`. They are manually maintained and must be kept in sync with backend DTOs. Key types: `IOwner`, `IPet`, `IPetType`, `IVisit`, `IVet`, `ISpecialty`, `IError`, `IConstraint`, `ISelectOption`.
+
+## State management
+
+No Redux, MobX, or Context API. All state is local (`this.state` / `setState`). Navigating away and back re-fetches data from the API.

@@ -14,9 +14,7 @@ export default class ErrorPage extends React.Component<void, IErrorPageState> {
   }
 
   componentDidMount() {
-    fetch('http://localhost:8080/api/oups')
-      .then(response => response.json())
-      .then(error => this.setState({error}));
+    this.setState({ error: { status: 'N/A', message: 'This is a demo error page.' } });
   }
 
   render() {

@@ -1,0 +1,38 @@
+---
+description: REST API layer — contract-first OpenAPI, controllers, DTOs, MapStruct mappers
+globs: src/main/java/**/rest/**/*.java, src/main/java/**/mapper/*.java, src/main/resources/openapi.yml
+alwaysApply: false
+---
+
+# REST API Layer
+
+## Contract-first design
+
+The API is defined in `src/main/resources/openapi.yml` (OpenAPI 3.0.1). At build time, `openapi-generator-maven-plugin` generates:
+
+- **`*Api` interfaces** in `org.springframework.samples.petclinic.rest.api`
+- **`*Dto` classes** in `org.springframework.samples.petclinic.rest.dto`
+
+Generated sources go to `target/generated-sources/openapi/`. Do NOT edit generated files.
+
+## Adding or modifying an endpoint
+
+1. Update `openapi.yml` first (paths, schemas, request/response bodies)
+2. Run `./mvnw compile` to regenerate interfaces and DTOs
+3. Implement or update the controller method that overrides the generated `*Api` interface
+4. Add or update the MapStruct mapper if entity↔DTO mapping changes
+5. Update the corresponding frontend TypeScript types in `client/src/types/index.ts`
+
+## Controller conventions
+
+- All controllers are `@RestController` with `@RequestMapping("api")`
+- All controllers (except `RootRestController`) have `@CrossOrigin(exposedHeaders = "errors, content-type")`
+- Use `@PreAuthorize("hasRole(@roles.ROLE_NAME)")` on every endpoint method — role constants are in the `Roles` component
+- Return `ResponseEntity<>` with explicit status codes
+- Use MapStruct mappers (not manual conversion) for entity↔DTO mapping
+
+## Error handling
+
+`ExceptionControllerAdvice` (`@ControllerAdvice`) handles:
+- `Exception.class` → HTTP 400 with `{ className, exMessage }`
+- `MethodArgumentNotValidException` → HTTP 400 with field-level errors in `errors` header

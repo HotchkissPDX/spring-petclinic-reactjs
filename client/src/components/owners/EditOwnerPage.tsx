@@ -17,10 +17,10 @@ export default class EditOwnerPage extends React.Component<IEditOwnerPageProps, 
     const { params } = this.props;
 
     if (params && params.ownerId) {
-      const fetchUrl = url(`/api/owner/${params.ownerId}`);
-      fetch(fetchUrl)
-        .then(response => response.json())
-        .then(owner => this.setState({ owner }));
+      const fetchUrl = url(`api/owners/${params.ownerId}`);
+      fetch(fetchUrl, { credentials: 'include' })
+        .then(response => response.ok ? response.json() : null)
+        .then(owner => { if (owner) this.setState({ owner }); });
     }
   }
   render() {

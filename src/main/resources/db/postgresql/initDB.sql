@@ -85,7 +85,7 @@ ALTER SEQUENCE visits_id_seq RESTART WITH 100;
 
 CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(20) NOT NULL ,
-  password VARCHAR(20) NOT NULL ,
+  password VARCHAR(256) NOT NULL ,
   enabled boolean NOT NULL DEFAULT true ,
   CONSTRAINT pk_users PRIMARY KEY (username)
 );

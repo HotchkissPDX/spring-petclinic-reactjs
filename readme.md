@@ -18,27 +18,74 @@ Note there is another Spring PetClinic example that uses React: [spring-petclini
 If you like to help and contribute (there's lot root for improvements! I've collected a list of ideas [here: TODO.md](TODO.md)) you're more than welcome! Please open an issue or contact me on [Twitter](https://twitter.com/nilshartmann) so we can discuss together!
 
 
-## Install and run
+## Local development
 
-Note: Spring Boot Server App must be running before starting the client!
+You run **two processes**: the Spring Boot API (port **9966**, context **`/petclinic`**) and the React dev server (default port **3000** in code; the examples below use **4444** to match earlier docs). Start the **backend first** so the UI can load data.
 
-To start the server, launch a Terminal and run from the project's root folder (`spring-petclinic`):
-```
+### Prerequisites
+
+| Requirement | Notes |
+|-------------|--------|
+| **JDK** | Needed to run `./mvnw` (Java version per your Maven wrapper / Spring Boot). |
+| **Node.js** | **v18 or newer** recommended. The client uses current `less` / `less-loader`; older Node may show engine warnings or fail. |
+| **npm** | Comes with Node; used only under `client/`. |
+
+### 1. Backend (Spring Boot)
+
+From the **repository root** (not `client/`):
+
+```bash
 ./mvnw spring-boot:run
 ```
 
-When the server is running you can try to access the API for example to query all known pet types:
+Wait until the app has finished starting. Configuration lives in `src/main/resources/application.properties`:
+
+- **`server.port=9966`**
+- **`server.servlet.context-path=/petclinic/`**
+
+So the API base URL is **`http://localhost:9966/petclinic/`**, and REST routes look like **`/petclinic/api/…`**.
+
+Sanity check (pet types):
+
+```bash
+curl http://localhost:9966/petclinic/api/pettypes
 ```
-curl http://localhost:8080/api/pettypes
+
+### 2. Frontend (React + webpack)
+
+In a **second** terminal:
+
+```bash
+cd client
+npm install
+PORT=4444 npm start
 ```
 
-After starting the server you can install and run the client from the `client` folder:
+Then open **`http://localhost:4444`** in a browser.
 
-1. `npm install` (installs the node modules and the TypeScript definition files)
-2. `PORT=4444 npm start` 
-3. Open `http://localhost:4444`
+The dev server does **not** proxy API calls by default. The SPA is configured to call the backend at **`http://localhost:9966/petclinic`** (see `client/webpack.config.js`, `client/webpack.config.prod.js`, and `client/src/util/index.tsx`). If you change host, port, or context path in `application.properties`, update those client settings or the `__API_SERVER_URL__` define in the webpack configs to match.
 
-(Why not use the same server for backend and frontend? Because Webpack does a great job for serving JavaScript-based SPAs and I think it's not too uncommon to run this kind of apps using two dedicated server, one for backend, one for frontend)
+#### Optional commands (from `client/`)
+
+| Command | Purpose |
+|---------|---------|
+| `npm test` | Run Jest tests (`jest.config.cjs`, `jest.setup.js`). |
+| `npm run build:clean` | Development webpack build to `public/dist/`. |
+| `npm run build:prod` | Production webpack build (`NODE_ENV=production`). |
+
+### Toolchain (client)
+
+The `client` app has been brought up to a **webpack 5**–based setup: **webpack-dev-server 4**, **Babel 7** (`babel.config.js`), **TypeScript** via **ts-loader**, **Jest 29** with **ts-jest**, and current **less** / **css** loaders. You should not need `--legacy-peer-deps` for a normal `npm install` on a supported Node version.
+
+### Why two servers?
+
+The React app is served by webpack’s dev server in development (and static files in production) while the REST API is served by Spring Boot. That split is common for SPAs and keeps hot reload and API concerns separate.
+
+### Troubleshooting
+
+- **`curl: (7) Failed to connect to localhost port 9966`** — Backend is not running, or you are using the wrong URL. This project uses **9966** and **`/petclinic`**, not `8080` unless you change `application.properties`.
+- **Frontend install errors** — Use Node **18+**, delete `client/node_modules` and retry `npm install`. Ensure you are in **`client/`** when running npm.
+- **Empty data or network errors in the UI** — Confirm the backend is up and reachable at `http://localhost:9966/petclinic/api/…` before relying on the SPA.
 
 ## Feedback
 
@@ -54,6 +101,9 @@ If you you want to follow me on twitter, my handle is [@nilshartmann](https://tw
 
 
 ## Running petclinic locally
+
+The steps below describe the **original** [spring-projects/spring-petclinic](https://github.com/spring-projects/spring-petclinic) repository (default port **8080**). **This** ReactJS fork serves the app at **`http://localhost:9966/petclinic/`** instead; see [Local development](#local-development) above.
+
 ```
 	git clone https://github.com/spring-projects/spring-petclinic.git
 	cd spring-petclinic
@@ -61,7 +111,7 @@ If you you want to follow me on twitter, my handle is [@nilshartmann](https://tw
 	./mvnw spring-boot:run
 ```
 
-You can then access petclinic here: http://localhost:8080/
+You can then access that upstream petclinic here: http://localhost:8080/
 
 ## In case you find a bug/suggested improvement for Spring Petclinic
 Our issue tracker is available here: https://github.com/spring-projects/spring-petclinic/issues

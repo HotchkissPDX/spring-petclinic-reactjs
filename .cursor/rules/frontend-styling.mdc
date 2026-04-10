@@ -1,0 +1,29 @@
+---
+description: Styling conventions — Bootstrap 3, LESS, custom theme
+globs: client/src/styles/**/*.less, client/src/**/*.tsx
+alwaysApply: false
+---
+
+# Styling
+
+## CSS framework
+
+Bootstrap 3 (`^3.3.7`), imported as LESS source via `@import "~bootstrap/less/bootstrap.less"` in `petclinic.less`.
+
+## LESS files
+
+All styles under `client/src/styles/less/`:
+
+- `petclinic.less` — Main entry; imports Bootstrap, custom overrides, typography, header, responsive
+- `typography.less` — `@font-face` for Varela Round (body) and Montserrat (headings)
+- `header.less` — Navbar and branding styles
+- `responsive.less` — Media query adjustments
+
+## Conventions
+
+- Use Bootstrap 3 grid classes (`col-sm-*`, `col-md-*`) for layout
+- Use Bootstrap 3 component classes (`btn btn-default`, `table table-striped`, `form-horizontal`, `form-group`, `form-control`)
+- Icons: Glyphicons (`glyphicon glyphicon-*`)
+- Custom classes (`.xd-container`, `.error-page`, `.table-filter`) supplement Bootstrap
+- Override Bootstrap variables in LESS to change theme colors — do not use inline styles for theming
+- Fonts: Varela Round (body), Montserrat (headings), loaded from `client/src/styles/fonts/`

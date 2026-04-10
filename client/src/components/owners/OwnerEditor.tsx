@@ -41,12 +41,20 @@ export default class OwnerEditor extends React.Component<IOwnerEditorProps, IOwn
 
     const { owner } = this.state;
 
+    const request = {
+      firstName: owner.firstName,
+      lastName: owner.lastName,
+      address: owner.address,
+      city: owner.city,
+      telephone: owner.telephone
+    };
+
     const url = owner.isNew ? '/api/owners' : '/api/owners/' + owner.id;
-    submitForm(owner.isNew ? 'POST' : 'PUT', url, owner, (status, response) => {
-      if (status === 200 || status === 201) {
-        const newOwner = response as IOwner;
+    submitForm(owner.isNew ? 'POST' : 'PUT', url, request, (status, response) => {
+      if (status === 200 || status === 201 || status === 204) {
+        const ownerId = response.id || owner.id;
         this.context.router.push({
-          pathname: '/owners/' + newOwner.id
+          pathname: '/owners/' + ownerId
         });
       } else {
         console.log('ERROR?!...', response);
@@ -58,7 +66,7 @@ export default class OwnerEditor extends React.Component<IOwnerEditorProps, IOwn
   onInputChange(name: string, value: string, fieldError: IFieldError) {
     const { owner, error } = this.state;
     const modifiedOwner = Object.assign({}, owner, { [name]: value });
-    const newFieldErrors = error ? Object.assign({}, error.fieldErrors, {[name]: fieldError }) : {[name]: fieldError };
+    const newFieldErrors = error && error.fieldErrors ? Object.assign({}, error.fieldErrors, {[name]: fieldError }) : {[name]: fieldError };
     this.setState({
       owner: modifiedOwner,
       error: { fieldErrors: newFieldErrors }
@@ -70,7 +78,7 @@ export default class OwnerEditor extends React.Component<IOwnerEditorProps, IOwn
     return (
       <span>
         <h2>New Owner</h2>
-        <form className='form-horizontal' method='POST' action={url('/api/owner')}>
+        <form className='form-horizontal' method='POST' action={url('api/owners')}>
           <div className='form-group has-feedback'>
             <Input object={owner} error={error} constraint={NotEmpty} label='First Name' name='firstName' onChange={this.onInputChange} />
             <Input object={owner} error={error} constraint={NotEmpty} label='Last Name' name='lastName' onChange={this.onInputChange} />

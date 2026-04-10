@@ -3,7 +3,7 @@ import { IHttpMethod } from '../types';
 declare var __API_SERVER_URL__;
 const BACKEND_URL = (typeof __API_SERVER_URL__ === 'undefined' ? 'http://localhost:9966/petclinic' : __API_SERVER_URL__);
 
-export const url = (path: string): string => `${BACKEND_URL}/${path}`;
+export const url = (path: string): string => `${BACKEND_URL}/${path.replace(/^\/+/, '')}`;
 
 /**
  * path: relative PATH without host and port (i.e. '/api/123')
@@ -14,8 +14,9 @@ export const url = (path: string): string => `${BACKEND_URL}/${path}`;
 export const submitForm = (method: IHttpMethod, path: string, data: any, onSuccess: (status: number, response: any) => void) => {
   const requestUrl = url(path);
 
-  const fetchParams = {
+  const fetchParams: RequestInit = {
     method: method,
+    credentials: 'include',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -25,5 +26,13 @@ export const submitForm = (method: IHttpMethod, path: string, data: any, onSucce
 
   console.log('Submitting to ' + method + ' ' + requestUrl);
   return fetch(requestUrl, fetchParams)
-    .then(response => response.status === 204 ? onSuccess(response.status, {}) : response.json().then(result => onSuccess(response.status, result)));
+    .then(response => {
+      if (response.status === 204) {
+        return onSuccess(response.status, {});
+      }
+      return response.text().then(text => {
+        const result = text ? JSON.parse(text) : {};
+        return onSuccess(response.status, result);
+      });
+    });
 };
